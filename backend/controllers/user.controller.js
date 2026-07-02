@@ -4,6 +4,9 @@ import jwt from "jsonwebtoken"
 
 export const register = async(req, res) => {
     try {
+        console.log("Body:", req.body);
+        console.log("File:", req.file);
+
         const { fullName, email, phoneNumber, password, role } = req.body;
         if (!fullName || !email || !phoneNumber || !password || !role) {
             return res.status(400).json({
@@ -84,8 +87,8 @@ export const login = async(req, res) => {
             role: user.role,
             profile: user.profile
         }
-        return res.status(200).cookie("token", token, { maxAge: 1 * 24 * 60 * 60 * 1000, httpsOnly: true, sameSite: 'strict' }).json({
-            message: `Welcome back ${user.fullname}`,
+        return res.status(200).cookie("token", token, { maxAge: 1 * 24 * 60 * 60 * 1000, httpOnly: true, sameSite: 'strict' }).json({
+            message: `Welcome back ${user.fullName}`,
             success: true
         })
     } catch (error) {
@@ -131,8 +134,8 @@ export const updateProfile = async(req, res) => {
         if (fullName) user.fullName = fullName
         if (email) user.email = email
         if (phoneNumber) user.phoneNumber = phoneNumber
-        if (user.profile.bio) user.profile.bio = bio
-        if (user.profile.skills) user.profile.skills = skillsArray
+        if (bio) user.profile.bio = bio
+        if (skills) user.profile.skills = skillsArray
 
 
         //resume come later here:
