@@ -13,7 +13,7 @@ const Profile = () => {
   const [open, setOpen] = useState(false);
   const { user } = useSelector((store) => store.auth);
   const skills = user?.profile?.skills || [];
-  const isResume = Boolean(user?.profile?.resume);
+  const isResume = user?.profile?.resumeOriginalName;
 
   return (
     <div>
@@ -58,7 +58,7 @@ const Profile = () => {
         <div className="grid w-full max-w-sm items-center gap-1.5">
           <Label className={'text-md font-bold'}>Resume</Label>
           {
-            isResume ? <a target="blank" href="https://www.youtube.com/@KshitijRana-rb6rj" className="text-blue-500 w-full hover:underline cursor-pointer"> Kaji Magar </a> : <span>NA</span>
+            isResume ? <a target="blank" href={user?.profile?.resume} className="text-blue-500 w-full hover:underline cursor-pointer"> {user?.profile?.resumeOriginalName} </a> : <span>NA</span>
           }
         </div>
       </div>
