@@ -31,7 +31,7 @@ const Signup = () => {
     });
   };
   const changeFileHandler = (e) => {
-    setInput({ ...input, files: e.target.files[0] });
+    setInput({ ...input, file: e.target.files[0] });
   };
   const submitHandler = async (e) => {
     e.preventDefault();

@@ -6,8 +6,6 @@ import cloudinary from "../utils/cloudinary.js";
 
 export const register = async(req, res) => {
     try {
-        console.log("Body:", req.body);
-        console.log("File:", req.file);
 
         const { fullName, email, phoneNumber, password, role } = req.body;
         if (!fullName || !email || !phoneNumber || !password || !role) {
@@ -15,7 +13,10 @@ export const register = async(req, res) => {
                 message: "Something is missing",
                 success: false,
             });
-        }
+        };
+        const file = req.file;
+        const fileUri = getDataUri(file);
+        const cloudResponse = await cloudinary.uploader.upload(fileUri.content)
         const user = await User.findOne({ email });
         if (user) {
             return res.status(400).json({
@@ -24,12 +25,25 @@ export const register = async(req, res) => {
             });
         }
         const hashPassword = await bcrypt.hash(password, 10);
+
+        let profile = {};
+        if (file) {
+            const fileUri = getDataUri(file);
+            const cloudResponse = await cloudinary.uploader.upload(fileUri.content, {
+                resource_type: "auto",
+            });
+            profile.profilePhoto = cloudResponse.secure_url;
+        }
+
         await User.create({
             fullName,
             email,
             phoneNumber,
             password: hashPassword,
             role,
+            profile: {
+                profilePhoto: cloudResponse.secure_url
+            }
         });
         return res.status(201).json({
             message: "Account Successfully Created",
@@ -85,7 +99,7 @@ export const login = async(req, res) => {
             _id: user._id,
             fullName: user.fullName,
             email: user.email,
-            password: user.password,
+            phoneNumber: user.phoneNumber,
             role: user.role,
             profile: user.profile,
         };
@@ -103,6 +117,10 @@ export const login = async(req, res) => {
             });
     } catch (error) {
         console.log(error);
+        return res.status(500).json({
+            message: "Login failed",
+            success: false,
+        });
     }
 };
 
@@ -114,6 +132,10 @@ export const logout = async(req, res) => {
         });
     } catch (error) {
         console.log(error);
+        return res.status(500).json({
+            message: "Logout failed",
+            success: false,
+        });
     }
 };
 
@@ -126,7 +148,9 @@ export const updateProfile = async(req, res) => {
 
         if (file) {
             const fileUri = getDataUri(file);
-            cloudResponse = await cloudinary.uploader.upload(fileUri.content);
+            cloudResponse = await cloudinary.uploader.upload(fileUri.content, {
+                resource_type: "auto"
+            });
         }
 
         let skillsArray;
@@ -143,8 +167,9 @@ export const updateProfile = async(req, res) => {
                 success: false,
             });
         }
-        //updating data
+        user.profile = user.profile || {};
 
+        //updating data
         if (fullName) user.fullName = fullName;
         if (email) user.email = email;
         if (phoneNumber) user.phoneNumber = phoneNumber;
@@ -164,9 +189,7 @@ export const updateProfile = async(req, res) => {
             _id: user._id,
             fullName: user.fullName,
             email: user.email,
-            password: user.password,
             phoneNumber: user.phoneNumber,
-
             role: user.role,
             profile: user.profile,
         };

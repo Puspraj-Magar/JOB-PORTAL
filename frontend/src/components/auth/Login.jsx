@@ -18,7 +18,7 @@ const Login = () => {
     password: "",
     role: "",
   });
-  const { loading } = useSelector(store=>store.auth)
+  const { loading } = useSelector((store) => store.auth);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const changeEventHandler = (e) => {
@@ -43,7 +43,8 @@ const Login = () => {
         toast.success(res.data.message);
       }
     } catch (error) {
-      console.log(error);
+      console.log(error.response?.data);
+      toast.error(error.response?.data?.message);
     } finally {
       dispatch(setLoading(false));
     }
