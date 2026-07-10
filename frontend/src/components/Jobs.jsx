@@ -2,10 +2,12 @@ import React from "react";
 import FilterCard from "./FilterCard";
 import Navbar from "./shared/Navbar";
 import Job from "./Job";
+import { useSelector } from "react-redux";
 
 const jobArray = [1, 2, 3, 4, 5, 6, 7, 8];
-
+ 
 const Jobs = ({job}) => {
+  const { allJobs } = useSelector(store=>store.job);
   return (
     <div>
       <Navbar />
@@ -15,13 +17,13 @@ const Jobs = ({job}) => {
           <FilterCard />
         </div>
         {
-        jobArray.length <= 0 ? <span>job not found</span> :(
+        allJobs.length <= 0 ? <span>job not found</span> :(
           <div className="flex-1 h-[88vh] overflow-y-auto pb-5">
             <div className="grid grid-cols-3 gap-4">
               {
-                jobArray.map((item, index) => (
-                  <div key={item}>
-                    <Job  job={item} />
+                allJobs.map((job) => (
+                  <div key={job}>
+                    <Job  job={job} />
                   </div>
                 ))
               }
@@ -30,7 +32,6 @@ const Jobs = ({job}) => {
         )
         }
         </div>
-       
       </div>
     </div>
   );

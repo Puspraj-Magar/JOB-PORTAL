@@ -27,8 +27,6 @@ const Navbar = () => {
     } catch (error) {
       console.log(error);
       toast.error(error.response.data.message);
-      
-      
     }
   }
   return (
@@ -59,14 +57,14 @@ const Navbar = () => {
           <Popover>
             <PopoverTrigger asChild>
               <Avatar className="cursor-pointer">
-                <AvatarImage src={user?.profile?.profilePhoto} alt="@shadcn" />
+                <AvatarImage src={user?.profile?.profilePhoto}  />
                 <AvatarFallback>JP</AvatarFallback>
               </Avatar>
             </PopoverTrigger>
             <PopoverContent className="w-75">
               <div className="flex gap-2 space-y-2">
                 <Avatar className="cursor-pointer">
-                  <AvatarImage src={user?.profile?.profilePhoto} alt="@shadcn" />
+                  <AvatarImage src={user?.profile?.profilePhoto} />
                   <AvatarFallback>JP</AvatarFallback>
                 </Avatar>
                 <div className="">
