@@ -2,7 +2,7 @@ import { useParams } from 'react-router-dom';
 import { Badge } from './ui/badge'
 import { Button } from './ui/button'
 import { APPLICATION_API_END_POINT, JOB_API_END_POINT } from '@/utils/constant';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { setSingleJob } from '@/redux/jobSlice';
 import axios from 'axios';
@@ -12,7 +12,8 @@ const JobDescription = () => {
     
     const { user } = useSelector(store => store.auth);
     const { singleJob } = useSelector(store => store.job);
-    const isApplied = singleJob?.application?.some(application => application.applicant == user?._id) || false;
+    const isInitiallyApplied = singleJob?.application?.some(application => application.applicant == user?._id) || false;
+    const [isApplied, setIsApplied]  = useState(isInitiallyApplied);
 
     const params = useParams();
     const jobId = params.id;
@@ -24,6 +25,9 @@ const JobDescription = () => {
             console.log(res.data);
             
             if(res.data.success){
+                setIsApplied(true);   //update the local state
+                const updatedSingleJob = {...singleJob, applications:[...singleJob.applications,{applicant:user?._id}]};
+                dispatch(setSingleJob(updatedSingleJob));  //UI applicant update in real time 
                 toast.success(res.data.message);
             }
         } catch (error) {
@@ -39,6 +43,7 @@ const JobDescription = () => {
             const res = await axios.get(`${JOB_API_END_POINT}/get/${jobId}`, {withCredentials:true});
             if(res.data.success){
                 dispatch(setSingleJob(res.data.job))
+                setIsApplied(res.data.job.applications.some(application => application.applicant === user?._id)) //ensure state is in sync with fetch data
             }
         } catch (error) {
             console.log(error);

@@ -4,8 +4,6 @@ import Navbar from "./shared/Navbar";
 import Job from "./Job";
 import { useSelector } from "react-redux";
 
-const jobArray = [1, 2, 3, 4, 5, 6, 7, 8];
- 
 const Jobs = ({job}) => {
   const { allJobs } = useSelector(store=>store.job);
   return (
@@ -13,7 +11,7 @@ const Jobs = ({job}) => {
       <Navbar />
       <div className="max-w-7xl mx-auto mt-5">
         <div className="flex gap-7">
-           <div className="w-20%">
+          <div className="w-20%">
           <FilterCard />
         </div>
         {
