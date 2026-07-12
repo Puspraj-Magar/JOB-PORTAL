@@ -27,11 +27,12 @@ const CompanyCreate = () => {
                 dispatch(setSingleCompany(res.data.company));
                 toast.success(res.data.message);
                 const companyId = res?.data?.company?._id;
-                navigate(`/admin/company/${companyId}`);
+                navigate(`/admin/companies/${companyId}`);
             }
             
         } catch (error) {
-            console.log(error);
+            console.log(error.response?.data);
+            
             
         }
     }
