@@ -1,13 +1,34 @@
-
-import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from '../ui/table'
-import { Avatar, AvatarImage } from '../ui/avatar'
-import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover'
-import { Edit2, MoreHorizontal } from 'lucide-react'
+import {
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "../ui/table";
+import { Avatar, AvatarImage } from "../ui/avatar";
+import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
+import { Edit2, MoreHorizontal } from "lucide-react";
+import { useSelector } from "react-redux";
+import { useEffect, useState } from "react";
 
 const CompaniesTable = () => {
+  const { companies , searchCompanyByText } = useSelector((store) => store.company);
+  const [ filterCompany, setFilterCompany ] = useState(companies);
+
+  useEffect(() => {
+    const filteredCompany = companies.length >= 0 && companies.filter((company) => {
+      if(!searchCompanyByText){
+        return true
+      };
+      return company?.name?.toLowerCase().includes(searchCompanyByText.toLowerCase());
+    });
+    setFilterCompany(filteredCompany);
+  }, [companies, searchCompanyByText])
   return (
     <div>
-      <Table >
+      <Table>
         <TableCaption>A list of your recent register companies</TableCaption>
         <TableHeader>
           <TableRow>
@@ -18,28 +39,35 @@ const CompaniesTable = () => {
           </TableRow>
         </TableHeader>
         <TableBody>
-          <TableCell>
-            <Avatar>
-              <AvatarImage src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRWASgvoWGRcE5FRqDzQViYJ1jYMY7XtJk0y4bLmQ0-0A&s"/>
-            </Avatar>
-          </TableCell>
-          <TableCell>Company Name</TableCell>
-          <TableCell>26-12-2027</TableCell>
-          <TableCell className={"text-right cursor-right"}>
-            <Popover>
-              <PopoverTrigger><MoreHorizontal /></PopoverTrigger>
-              <PopoverContent className={'w-32'}>
-                <div className='flex items-center gap-2 w-fit cursor-pointer'>
-                  <Edit2 className='w-4'/>
-                  <span>Edit</span>
-                </div>
-              </PopoverContent>
-            </Popover>
-          </TableCell>
+          {filterCompany?.map((company) => (
+            <TableRow key={company._id}>
+                <TableCell>
+                  <Avatar>
+                    <AvatarImage src={company.logo} alt={company.name} />
+                  </Avatar>
+                </TableCell>
+                <TableCell>{company.name}</TableCell>
+                <TableCell>{company.createdAt.split("T")[0]}</TableCell>
+                <TableCell className={"text-right cursor-right"}>
+                  <Popover>
+                    <PopoverTrigger>
+                      <MoreHorizontal />
+                    </PopoverTrigger>
+                    <PopoverContent className={"w-32"}>
+                      <div className="flex items-center gap-2 w-fit cursor-pointer">
+                        <Edit2 className="w-4" />
+                        <span>Edit</span>
+                      </div>
+                    </PopoverContent>
+                  </Popover>
+                </TableCell>
+              </TableRow>
+            
+          ))}
         </TableBody>
       </Table>
     </div>
-  )
-}
+  );
+};
 
-export default CompaniesTable
+export default CompaniesTable;

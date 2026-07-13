@@ -1,4 +1,6 @@
 import { Company } from "../models/company.model.js"
+import getDataUri from "../utils/dataUri.js";
+import cloudinary from "../utils/cloudinary.js";
 
 export const registerCompany = async(req, res) => {
     try {
@@ -78,26 +80,60 @@ export const getCompanyByID = async(req, res) => {
 
 export const updateCompany = async(req, res) => {
     try {
-        const { name, description, website, location, logo } = req.body;
-        const file = req.file;
+        const { name, description, website, location } = req.body;
 
-        const updateData = { name, description, website, location, logo };
+        // Check duplicate name
+        const existingCompany = await Company.findOne({
+            name,
+            _id: { $ne: req.params.id }
+        });
 
-        const company = await Company.findByIdAndUpdate(req.params.id, updateData, { new: true });
+        if (existingCompany) {
+            return res.status(400).json({
+                success: false,
+                message: "Company name already exists"
+            });
+        }
+
+        const updateData = {
+            name,
+            description,
+            website,
+            location,
+        };
+
+        if (req.file) {
+            const fileUri = getDataUri(req.file);
+            const cloudResponse = await cloudinary.uploader.upload(fileUri.content);
+            updateData.logo = cloudResponse.secure_url;
+        }
+
+        const company = await Company.findByIdAndUpdate(
+            req.params.id,
+            updateData, {
+                returnDocument: "after",
+                runValidators: true,
+            }
+        );
 
         if (!company) {
             return res.status(404).json({
-                message: "Company not found.",
-                success: false
-            })
+                success: false,
+                message: "Company not found",
+            });
         }
+
         return res.status(200).json({
-            message: "Company information updated",
-            success: true
-        })
+            success: true,
+            message: "Company updated successfully",
+            company,
+        });
+
     } catch (error) {
         console.log(error);
-
+        return res.status(500).json({
+            success: false,
+            message: "Internal Server Error",
+        });
     }
-
-}
+};
