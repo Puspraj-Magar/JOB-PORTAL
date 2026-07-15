@@ -6,17 +6,16 @@ import cloudinary from "../utils/cloudinary.js";
 
 export const register = async(req, res) => {
     try {
-
         const { fullName, email, phoneNumber, password, role } = req.body;
         if (!fullName || !email || !phoneNumber || !password || !role) {
             return res.status(400).json({
                 message: "Something is missing",
                 success: false,
             });
-        };
+        }
         const file = req.file;
         const fileUri = getDataUri(file);
-        const cloudResponse = await cloudinary.uploader.upload(fileUri.content)
+        const cloudResponse = await cloudinary.uploader.upload(fileUri.content);
         const user = await User.findOne({ email });
         if (user) {
             return res.status(400).json({
@@ -42,8 +41,8 @@ export const register = async(req, res) => {
             password: hashPassword,
             role,
             profile: {
-                profilePhoto: cloudResponse.secure_url
-            }
+                profilePhoto: cloudResponse.secure_url,
+            },
         });
         return res.status(201).json({
             message: "Account Successfully Created",
@@ -106,9 +105,11 @@ export const login = async(req, res) => {
         return res
             .status(200)
             .cookie("token", token, {
-                maxAge: 1 * 24 * 60 * 60 * 1000,
                 httpOnly: true,
-                sameSite: "strict",
+                sameSite: "lax",
+                secure: false, // Development only, set to true in production
+                maxAge: 1 * 24 * 60 * 60 * 1000,
+                path: "/" // Ensure cookie is available to all routes
             })
             .json({
                 message: `Welcome back ${user.fullName}`,
@@ -126,10 +127,15 @@ export const login = async(req, res) => {
 
 export const logout = async(req, res) => {
     try {
-        return res.status(200).cookie("token", "", { maxAge: 0 }).json({
-            message: "Logged out successfully",
-            success: true,
-        });
+        return res.status(200)
+            .cookie("token", "", {
+                maxAge: 0,
+                path: "/"
+            })
+            .json({
+                message: "Logged out successfully",
+                success: true,
+            });
     } catch (error) {
         console.log(error);
         return res.status(500).json({
@@ -149,7 +155,7 @@ export const updateProfile = async(req, res) => {
         if (file) {
             const fileUri = getDataUri(file);
             cloudResponse = await cloudinary.uploader.upload(fileUri.content, {
-                resource_type: "auto"
+                resource_type: "auto",
             });
         }
 

@@ -9,8 +9,11 @@ import { COMPANY_API_END_POINT } from "@/utils/constant";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
 import { useSelector } from "react-redux";
+import useGetCompanyById from "@/hooks/useGetCompanyById";
 
 const CompanySetup = () => {
+  const params = useParams();
+  useGetCompanyById(params.id);  // Pass only the id, not the entire params object
   const [input, setInput] = useState({
     name: "",
     description: "",
@@ -21,7 +24,7 @@ const CompanySetup = () => {
 
   const { singleCompany } = useSelector(store => store.company);
   const [loading, setLoading] = useState(false);
-  const params = useParams();
+  
   const navigate = useNavigate();
 
   const changeEventHandler = (e) => {
@@ -66,15 +69,17 @@ const CompanySetup = () => {
       setLoading(false);
     }
   };
-    useEffect(() => {
-      setInput({
-        name: singleCompany.name || "",
-        description: singleCompany.description || "",
-        website: singleCompany.website || "",
-        location: singleCompany.location || "",
-        file: singleCompany.file || null,
-      });
-    }, [singleCompany]);
+  useEffect(() => {
+    if (!singleCompany) return;
+
+    setInput({
+      name: singleCompany.name || "",
+      description: singleCompany.description || "",
+      website: singleCompany.website || "",
+      location: singleCompany.location || "",
+      file: null,
+    });
+  }, [singleCompany]);
 
   return (
     <div>
@@ -84,7 +89,7 @@ const CompanySetup = () => {
           <div className="flex items-center gap-5 p-8">
             <Button
             type ="button"
-              onClick={ () => navigate("admin/companies")}
+              onClick={ () => navigate("/admin/companies")}
               variant="outline"
               className="flex items-center gap-2 text-gray-500 font-semibold"
             >
