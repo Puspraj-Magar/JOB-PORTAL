@@ -12,10 +12,24 @@ dotenv.config({});
 
 const app = express();
 
+const allowedOrigins = [
+    'http://localhost:5173',
+    'http://127.0.0.1:5173',
+    'http://localhost:3000'
+];
+
 const corsOptions = {
-    origin: 'http://localhost:5173',
-    credentials: true
-}
+    origin: (origin, callback) => {
+        if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error(`CORS not allowed for origin: ${origin}`));
+        }
+    },
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+};
 
 // CORS must be first
 app.use(cors(corsOptions));

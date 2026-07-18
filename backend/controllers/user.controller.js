@@ -4,6 +4,17 @@ import jwt from "jsonwebtoken";
 import getDataUri from "../utils/dataUri.js";
 import cloudinary from "../utils/cloudinary.js";
 
+const getCookieOptions = () => {
+    const isProduction = process.env.NODE_ENV === "production";
+    return {
+        httpOnly: true,
+        sameSite: isProduction ? "none" : "lax",
+        secure: isProduction,
+        maxAge: 30 * 24 * 60 * 60 * 1000,
+        path: "/"
+    };
+};
+
 export const register = async(req, res) => {
     try {
         const { fullName, email, phoneNumber, password, role } = req.body;
@@ -91,8 +102,10 @@ export const login = async(req, res) => {
             userId: user._id,
         };
         const token = await jwt.sign(tokenData, process.env.SECRET_KEY, {
-            expiresIn: "1d",
+            expiresIn: "30d",
         });
+
+        const cookieOptions = getCookieOptions();
 
         user = {
             _id: user._id,
@@ -104,13 +117,7 @@ export const login = async(req, res) => {
         };
         return res
             .status(200)
-            .cookie("token", token, {
-                httpOnly: true,
-                sameSite: "lax",
-                secure: false, // Development only, set to true in production
-                maxAge: 1 * 24 * 60 * 60 * 1000,
-                path: "/" // Ensure cookie is available to all routes
-            })
+            .cookie("token", token, cookieOptions)
             .json({
                 message: `Welcome back ${user.fullName}`,
                 user,
@@ -129,8 +136,8 @@ export const logout = async(req, res) => {
     try {
         return res.status(200)
             .cookie("token", "", {
-                maxAge: 0,
-                path: "/"
+                ...getCookieOptions(),
+                maxAge: 0
             })
             .json({
                 message: "Logged out successfully",
@@ -206,5 +213,10 @@ export const updateProfile = async(req, res) => {
         });
     } catch (error) {
         console.log(error);
+
+        return res.status(500).json({
+            success: false,
+            message: error.message,
+        });
     }
 };
