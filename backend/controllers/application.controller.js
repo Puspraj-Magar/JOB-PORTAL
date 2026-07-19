@@ -46,7 +46,7 @@ export const applyJob = async(req, res) => {
     }
 }
 
-export const getApplyJob = async(req, res) => {
+export const getAppliedJobs = async(req, res) => {
     try {
         const userId = req.id;
         const application = await Application.find({
@@ -61,7 +61,7 @@ export const getApplyJob = async(req, res) => {
                 options: { sort: { createdAt: -1 } }
             }
         })
-        if (application.length == 0) {
+        if (!application) {
             return res.status(404).json({
                 message: "No Application",
                 success: false
