@@ -2,9 +2,11 @@ import React from 'react'
 import Navbar from './shared/Navbar'
 import Job from './Job';
 import { useSelector } from 'react-redux';
+import useGetAllJobs from '@/hooks/useGetAllJobs';
 
 
 const Browse = () => {
+  useGetAllJobs();
   const { allJobs } = useSelector(store=>store.job)
   return (
     <div>

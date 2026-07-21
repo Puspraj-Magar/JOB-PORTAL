@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useEffect, useState } from "react";
 import Navbar from "../shared/Navbar";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
@@ -9,8 +9,8 @@ import { USER_API_END_POINT } from "@/utils/constant";
 import { toast } from "sonner";
 import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
-import store from "@/redux/store";
 import { setLoading } from "@/redux/authSlice";
+
 
 const Signup = () => {
   const [input, setInput] = useState({
@@ -21,7 +21,7 @@ const Signup = () => {
     role: "",
     file: null,
   });
-  const {loading} = useSelector(store=> store.auth);
+  const {loading,user } = useSelector(store=> store.auth);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const changeEventHandler = (e) => {
@@ -69,6 +69,11 @@ const Signup = () => {
       dispatch(setLoading(false));
     }
   };
+  useEffect(()=> {
+        if(user){
+          navigate("/");
+        }
+      },[])
   return (
     <div>
       <Navbar />
